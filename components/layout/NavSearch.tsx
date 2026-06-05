@@ -22,6 +22,7 @@ import {
   Calculator,
   Network,
   Sparkles,
+  Wand2,
   X,
 } from 'lucide-react';
 
@@ -99,6 +100,23 @@ export const NAV_SEARCH_PAGES: NavSearchPage[] = [
       'experiment',
     ],
     icon: Sparkles,
+  },
+  {
+    href: '/prompts',
+    label: 'Prompt generator',
+    description:
+      'Auto-generate production-grade system prompts with a specialized agent.',
+    keywords: [
+      'prompt',
+      'prompt engineering',
+      'system prompt',
+      'generate prompt',
+      'prompt architect',
+      'meta prompt',
+      'sonnet',
+      'claude',
+    ],
+    icon: Wand2,
   },
   {
     href: '/pricing',

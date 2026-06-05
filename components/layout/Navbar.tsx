@@ -20,6 +20,7 @@ import {
   Calculator,
   Network,
   Sparkles,
+  Wand2,
 } from 'lucide-react';
 
 interface TabItem {
@@ -48,6 +49,7 @@ export function Navbar() {
     { href: '/models', label: 'Models', icon: Cpu },
     { href: '/swarms', label: 'Swarms', icon: Network },
     { href: '/playground', label: 'Playground', icon: Sparkles },
+    { href: '/prompts', label: 'Prompts', icon: Wand2 },
     { href: '/pricing', label: 'Pricing', icon: Calculator },
     { href: '/settings', label: 'Settings', icon: Settings },
   ];
