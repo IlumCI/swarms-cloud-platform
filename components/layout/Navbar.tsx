@@ -22,6 +22,7 @@ import {
   Sparkles,
   Wand2,
   AppWindow,
+  User,
 } from 'lucide-react';
 
 interface TabItem {
@@ -89,6 +90,18 @@ export function Navbar() {
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 min-w-0">
             <CreditBalance />
             <ThemeSwitcher compact />
+            <Link
+              href="/settings"
+              aria-label="Account settings"
+              title="Settings"
+              className={`inline-flex items-center justify-center w-7 h-7 rounded-sm border transition-colors ${
+                pathname === '/settings'
+                  ? 'bg-muted text-foreground border-border-strong'
+                  : 'bg-card text-muted-foreground border-border hover:text-foreground hover:bg-muted'
+              }`}
+            >
+              <User className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
       </div>
