@@ -1,33 +1,14 @@
 import { type Page } from '@playwright/test';
 
 /**
- * Drop a fake API key into localStorage and dismiss the API-key gate so
- * navigation tests don't have to fight a modal on every page.
+ * Legacy helper from when the app cached a Swarms API key in browser storage.
+ * The key is now resolved server-side from the authenticated Supabase user's
+ * `swarms_cloud_api_keys` row, so seeding localStorage no longer authenticates
+ * a Playwright session. Kept as a no-op for call-site compatibility; tests
+ * that need authenticated routes must sign in through `/login` instead.
  */
-export async function seedApiKey(page: Page, key = 'test-key-not-real') {
-  await page.addInitScript((apiKey) => {
-    try {
-      const existing = window.localStorage.getItem('ui-store');
-      const parsed = existing ? JSON.parse(existing) : { state: {}, version: 3 };
-      parsed.state = { ...(parsed.state ?? {}), swarmsApiKey: apiKey };
-      parsed.version = parsed.version ?? 3;
-      window.localStorage.setItem('ui-store', JSON.stringify(parsed));
-    } catch {
-      // If anything goes sideways, write a minimal valid store
-      window.localStorage.setItem(
-        'ui-store',
-        JSON.stringify({
-          state: {
-            viewMode: 'grid',
-            sidebarOpen: false,
-            theme: 'system',
-            swarmsApiKey: apiKey,
-          },
-          version: 3,
-        })
-      );
-    }
-  }, key);
+export async function seedApiKey(_page: Page, _key = 'test-key-not-real') {
+  // intentionally empty
 }
 
 /**

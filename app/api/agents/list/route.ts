@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SwarmsAPIClient } from '@/lib/api/swarms-client';
+import { resolveApiKey } from '@/lib/api/server-api-key';
+import { jsonErrorFromUnknown } from '@/lib/api/errors';
 
 const CACHE_TTL_MS = 30 * 60 * 1000;
 const CACHE_TTL_SECONDS = 30 * 60;
@@ -12,11 +14,11 @@ type CacheEntry = {
 const cache = new Map<string, CacheEntry>();
 
 export async function GET(request: NextRequest) {
-  const apiKey = request.headers.get('x-api-key') || process.env.SWARMS_API_KEY;
+  const apiKey = await resolveApiKey();
 
   if (!apiKey) {
     return NextResponse.json(
-      { error: 'Missing swarms_api_key. Please enter your API key to continue.' },
+      { error: 'No Swarms API key found. Sign in or create one in your Swarms account.' },
       { status: 401 }
     );
   }
@@ -55,19 +57,7 @@ export async function GET(request: NextRequest) {
         'Cache-Control': `private, max-age=${CACHE_TTL_SECONDS}`,
       },
     });
-  } catch (error: any) {
-    console.error('API Error:', error);
-
-    const errorMessage = error.message || 'Failed to list agent configurations';
-    const errorStatus = error.status || 500;
-
-    return NextResponse.json(
-      {
-        error: errorMessage,
-        status: errorStatus,
-        code: error.code,
-      },
-      { status: errorStatus }
-    );
+  } catch (error) {
+    return jsonErrorFromUnknown('api/agents/list', error);
   }
 }

@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SwarmsAPIClient } from '@/lib/api/swarms-client';
+import { resolveApiKey } from '@/lib/api/server-api-key';
+import { jsonErrorFromUnknown } from '@/lib/api/errors';
 
 export async function POST(request: NextRequest) {
-  const apiKey = request.headers.get('x-api-key') || process.env.SWARMS_API_KEY;
+  const apiKey = await resolveApiKey();
 
   if (!apiKey) {
     return NextResponse.json(
-      { error: 'Missing swarms_api_key. Please enter your API key to continue.' },
+      { error: 'No Swarms API key found. Sign in or create one in your Swarms account.' },
       { status: 401 }
     );
   }
@@ -39,20 +41,7 @@ export async function POST(request: NextRequest) {
     const result = await client.executeAgent(agent_config, task, options);
 
     return NextResponse.json(result);
-  } catch (error: any) {
-    console.error('API Error:', error);
-
-    // Extract error message and status from APIError
-    const errorMessage = error.message || 'Failed to execute agent';
-    const errorStatus = error.status || 500;
-
-    return NextResponse.json(
-      {
-        error: errorMessage,
-        status: errorStatus,
-        code: error.code,
-      },
-      { status: errorStatus }
-    );
+  } catch (error) {
+    return jsonErrorFromUnknown('api/agents', error);
   }
 }

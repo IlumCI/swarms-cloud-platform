@@ -17,7 +17,6 @@ export function AgentConfigsTable({ onSelectConfig }: AgentConfigsTableProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const hasFetchedRef = useRef(false);
   const addToast = useUIStore((state) => state.addToast);
-  const swarmsApiKey = useUIStore((state) => state.swarmsApiKey);
 
   const accentTextClass = 'text-accent';
   const surfaceClass = 'bg-card border-border';
@@ -29,21 +28,13 @@ export function AgentConfigsTable({ onSelectConfig }: AgentConfigsTableProps) {
   const retryBtnClass = 'px-4 py-2 bg-accent text-accent-foreground font-mono font-semibold rounded hover:opacity-90 transition-all';
 
   const fetchConfigs = async () => {
-    if (!swarmsApiKey) {
-      setError('Missing swarms_api_key. Please enter your API key first.');
-      setLoading(false);
-      return;
-    }
-
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/agents/list', {
-        headers: { 'x-api-key': swarmsApiKey },
-      });
+      const response = await fetch('/api/agents/list');
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || 'Failed to fetch agent configurations');
       }
 
@@ -62,11 +53,11 @@ export function AgentConfigsTable({ onSelectConfig }: AgentConfigsTableProps) {
     }
   };
 
-  // Fetch/re-fetch when API key changes
   useEffect(() => {
     hasFetchedRef.current = false;
     fetchConfigs();
-  }, [swarmsApiKey]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Filter configs based on search query
   const filteredConfigs = useMemo(() => {

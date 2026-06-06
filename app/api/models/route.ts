@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import SwarmsAPIClient from '@/lib/api/swarms-client';
+import { resolveApiKey } from '@/lib/api/server-api-key';
+import { jsonErrorFromUnknown } from '@/lib/api/errors';
 
 const TEN_HOURS_MS = 10 * 60 * 60 * 1000;
 const TEN_HOURS_SECONDS = 10 * 60 * 60;
@@ -13,12 +15,11 @@ const cache = new Map<string, CacheEntry>();
 
 export async function GET(request: NextRequest) {
   try {
-    const apiKey =
-      request.headers.get('x-api-key') || process.env.SWARMS_API_KEY;
+    const apiKey = await resolveApiKey();
 
     if (!apiKey) {
       return NextResponse.json(
-        { error: 'Missing swarms_api_key. Please enter your API key to continue.' },
+        { error: 'No Swarms API key found. Sign in or create one in your Swarms account.' },
         { status: 401 }
       );
     }
@@ -52,14 +53,7 @@ export async function GET(request: NextRequest) {
         'Cache-Control': `public, max-age=${TEN_HOURS_SECONDS}`,
       },
     });
-  } catch (error: any) {
-    console.error('Error fetching models:', error);
-    return NextResponse.json(
-      {
-        error: error.message || 'Failed to fetch available models',
-        status: error.status || 500,
-      },
-      { status: error.status || 500 }
-    );
+  } catch (error) {
+    return jsonErrorFromUnknown('api/models', error);
   }
 }

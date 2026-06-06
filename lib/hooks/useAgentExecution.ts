@@ -9,7 +9,6 @@ export function useAgentExecution() {
   const setAgentStatus = useAgentStore((state) => state.setAgentStatus);
   const addExecutionToHistory = useAgentStore((state) => state.addExecutionToHistory);
   const addToast = useUIStore((state) => state.addToast);
-  const swarmsApiKey = useUIStore((state) => state.swarmsApiKey);
 
   const executeAgent = async (
     agentId: string,
@@ -23,16 +22,6 @@ export function useAgentExecution() {
       search_enabled?: boolean;
     }
   ) => {
-    if (!swarmsApiKey) {
-      const message = 'Please enter your swarms_api_key to execute agents.';
-      addToast({
-        type: 'error',
-        message,
-        duration: 5000,
-      });
-      throw new Error(message);
-    }
-
     setIsExecuting(true);
     setExecutingAgentIds((prev) => new Set([...prev, agentId]));
     setAgentStatus(agentId, 'running');
@@ -45,7 +34,6 @@ export function useAgentExecution() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': swarmsApiKey,
         },
         body: JSON.stringify({
           agent_config: config,

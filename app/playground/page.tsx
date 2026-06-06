@@ -62,7 +62,6 @@ const inputBase =
   'w-full h-9 rounded-md border border-border bg-input text-foreground text-sm px-3 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background';
 
 export default function PlaygroundPage() {
-  const swarmsApiKey = useUIStore((s) => s.swarmsApiKey);
   const addToast = useUIStore((s) => s.addToast);
   const searchParams = useSearchParams();
   const initialType = (() => {
@@ -134,10 +133,7 @@ export default function PlaygroundPage() {
   };
 
   const canRun =
-    !!swarmsApiKey &&
-    !isRunning &&
-    task.trim().length > 0 &&
-    agents.length > 0;
+    !isRunning && task.trim().length > 0 && agents.length > 0;
 
   const buildSpec = (): SwarmSpec => ({
     name: swarmName.trim() || undefined,
@@ -161,14 +157,6 @@ export default function PlaygroundPage() {
   );
 
   const run = async () => {
-    if (!swarmsApiKey) {
-      addToast({
-        type: 'error',
-        message: 'Set your Swarms API key in Settings first.',
-        duration: 4000,
-      });
-      return;
-    }
     if (!task.trim()) {
       addToast({
         type: 'error',
@@ -189,7 +177,6 @@ export default function PlaygroundPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': swarmsApiKey,
         },
         body: JSON.stringify(spec),
       });
@@ -392,9 +379,7 @@ export default function PlaygroundPage() {
               <div className="sticky bottom-4 z-10">
                 <div className="rounded-lg border border-border bg-card/95 backdrop-blur p-3 flex items-center justify-between gap-3 shadow-sm">
                   <div className="text-xs text-muted-foreground min-w-0 truncate">
-                    {!swarmsApiKey
-                      ? 'Set your API key in Settings to run.'
-                      : !task.trim()
+                    {!task.trim()
                       ? 'Add a task to run the swarm.'
                       : `Ready: ${agents.length} agent${
                           agents.length === 1 ? '' : 's'

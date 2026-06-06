@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import SwarmsAPIClient from '@/lib/api/swarms-client';
+import { resolveApiKey } from '@/lib/api/server-api-key';
+import { jsonErrorFromUnknown } from '@/lib/api/errors';
 import type { AgentConfig } from '@/types/agent';
 
 const PROMPT_ARCHITECT_SYSTEM_PROMPT = `You are Prompt Architect — a senior prompt engineer specializing in production-grade system prompts for AI agents. Your only job is to translate a high-level description of a desired agent into a complete, deployable system prompt.
@@ -102,12 +104,11 @@ function extractText(outputs: unknown): string {
 
 export async function POST(request: NextRequest) {
   try {
-    const apiKey =
-      request.headers.get('x-api-key') || process.env.SWARMS_API_KEY;
+    const apiKey = await resolveApiKey();
 
     if (!apiKey) {
       return NextResponse.json(
-        { error: 'Missing swarms_api_key. Please enter your API key to continue.' },
+        { error: 'No Swarms API key found. Sign in or create one in your Swarms account.' },
         { status: 401 }
       );
     }
@@ -139,14 +140,7 @@ export async function POST(request: NextRequest) {
       usage: result.usage ?? null,
       timestamp: result.timestamp,
     });
-  } catch (error: any) {
-    console.error('Prompt generator error:', error);
-    return NextResponse.json(
-      {
-        error: error.message || 'Failed to generate prompt',
-        status: error.status || 500,
-      },
-      { status: error.status || 500 }
-    );
+  } catch (error) {
+    return jsonErrorFromUnknown('api/prompt-generator', error);
   }
 }

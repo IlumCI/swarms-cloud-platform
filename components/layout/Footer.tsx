@@ -2,9 +2,15 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { ExternalLink, Activity } from 'lucide-react';
 
+const HIDE_ON_PATHS = ['/login', '/signup', '/auth'];
+
 export function Footer() {
+  const pathname = usePathname();
+  if (pathname && HIDE_ON_PATHS.some((p) => pathname.startsWith(p))) return null;
+
   const year = new Date().getFullYear();
   return (
     <footer
