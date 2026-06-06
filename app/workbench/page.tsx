@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { AgentGrid } from '@/components/agents/AgentGrid';
 import { AgentTable } from '@/components/agents/AgentTable';
@@ -10,6 +10,11 @@ import { AgentConfigForm } from '@/components/agents/AgentConfigForm';
 import { AgentConfigsTable } from '@/components/agents/AgentConfigsTable';
 import { Modal } from '@/components/ui/Modal';
 import { Textarea } from '@/components/ui/Textarea';
+import {
+  ImageUploader,
+  type UploadedImage,
+} from '@/components/ui/ImageUploader';
+import { SnippetPreview } from '@/components/ui/SnippetPreview';
 import { OutputsPanel } from '@/components/outputs/OutputsPanel';
 import { ViewModeSwitcher } from '@/components/dashboard/ViewModeSwitcher';
 import { useUIStore } from '@/lib/store/ui-store';
@@ -28,6 +33,7 @@ export default function WorkbenchPage() {
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
   const [executingAgent, setExecutingAgent] = useState<Agent | null>(null);
   const [taskInput, setTaskInput] = useState('');
+  const [taskImages, setTaskImages] = useState<UploadedImage[]>([]);
 
   const { createAgent, updateAgent } = useAgents();
   const { executeAgent, isExecuting } = useAgentExecution();
@@ -62,15 +68,38 @@ export default function WorkbenchPage() {
   const handleRunTask = async () => {
     if (executingAgent && taskInput.trim()) {
       try {
-        await executeAgent(executingAgent.id, executingAgent.config, taskInput);
+        const opts =
+          taskImages.length > 0
+            ? { imgs: taskImages.map((img) => img.base64) }
+            : undefined;
+        await executeAgent(
+          executingAgent.id,
+          executingAgent.config,
+          taskInput,
+          opts
+        );
         setIsExecuteModalOpen(false);
         setTaskInput('');
+        setTaskImages([]);
         setExecutingAgent(null);
       } catch {
         /* surfaced via toast */
       }
     }
   };
+
+  // Mirror the exact payload the server route will send to /v1/agent/completions
+  // so the snippet preview always matches what the user is about to run.
+  const previewPayload = useMemo(() => {
+    if (!executingAgent) return null;
+    return {
+      agent_config: executingAgent.config,
+      task: taskInput,
+      ...(taskImages.length > 0
+        ? { imgs: taskImages.map((img) => img.base64) }
+        : {}),
+    };
+  }, [executingAgent, taskInput, taskImages]);
 
   const sidebarOpen = useUIStore((state) => state.sidebarOpen);
 
@@ -182,9 +211,11 @@ export default function WorkbenchPage() {
         onClose={() => {
           setIsExecuteModalOpen(false);
           setTaskInput('');
+          setTaskImages([]);
           setExecutingAgent(null);
         }}
         title={`Execute: ${executingAgent?.config.agent_name ?? ''}`}
+        size="large"
         footer={
           <>
             <Button
@@ -193,6 +224,7 @@ export default function WorkbenchPage() {
               onClick={() => {
                 setIsExecuteModalOpen(false);
                 setTaskInput('');
+                setTaskImages([]);
                 setExecutingAgent(null);
               }}
             >
@@ -216,11 +248,19 @@ export default function WorkbenchPage() {
             value={taskInput}
             onChange={(e) => setTaskInput(e.target.value)}
             placeholder="e.g. Analyze the latest AI trends and provide a summary…"
-            rows={8}
+            rows={6}
             showCharCount
             helperText="Be specific and clear about what you want the agent to accomplish."
             autoFocus
           />
+
+          <ImageUploader
+            value={taskImages}
+            onChange={setTaskImages}
+            label="Attached images"
+            helperText="Sent as base64 in the `imgs` field of the request."
+          />
+
           {executingAgent && (
             <div className="rounded-lg border border-border bg-subtle p-3.5 w-full min-w-0 overflow-hidden">
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2.5">
@@ -233,6 +273,15 @@ export default function WorkbenchPage() {
                 <Detail label="Max tokens" value={String(executingAgent.config.max_tokens)} mono />
               </div>
             </div>
+          )}
+
+          {previewPayload && (
+            <SnippetPreview
+              endpoint="/v1/agent/completions"
+              method="POST"
+              payload={previewPayload}
+              title="Request preview"
+            />
           )}
         </div>
       </Modal>

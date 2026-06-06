@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Textarea';
 import { Modal } from '@/components/ui/Modal';
+import { SnippetPreview } from '@/components/ui/SnippetPreview';
 import { AgentConfigsTable } from '@/components/agents/AgentConfigsTable';
 import { AgentSpecCard } from '@/components/playground/AgentSpecCard';
 import { SwarmOutput } from '@/components/playground/SwarmOutput';
@@ -26,6 +27,7 @@ import {
   XCircle,
   Sparkles,
   Download,
+  ImageIcon,
 } from 'lucide-react';
 
 function makeBlankAgent(index: number): SwarmAgentSpec {
@@ -76,6 +78,7 @@ export default function PlaygroundPage() {
   const [rules, setRules] = useState('');
   const [maxLoops, setMaxLoops] = useState(1);
   const [rearrangeFlow, setRearrangeFlow] = useState('');
+  const [imgUrl, setImgUrl] = useState('');
   const [agents, setAgents] = useState<SwarmAgentSpec[]>([
     {
       ...makeBlankAgent(0),
@@ -136,6 +139,27 @@ export default function PlaygroundPage() {
     task.trim().length > 0 &&
     agents.length > 0;
 
+  const buildSpec = (): SwarmSpec => ({
+    name: swarmName.trim() || undefined,
+    swarm_type: swarmType,
+    task: task.trim(),
+    rules: rules.trim() || undefined,
+    max_loops: maxLoops,
+    agents,
+    ...(swarmType === 'AgentRearrange' && rearrangeFlow.trim()
+      ? { rearrange_flow: rearrangeFlow.trim() }
+      : {}),
+    ...(imgUrl.trim() ? { img: imgUrl.trim() } : {}),
+  });
+
+  // Mirror the exact payload the server will POST so the snippet preview
+  // updates as you edit the form.
+  const previewSpec = useMemo<SwarmSpec>(
+    () => buildSpec(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [swarmName, swarmType, task, rules, maxLoops, agents, rearrangeFlow, imgUrl]
+  );
+
   const run = async () => {
     if (!swarmsApiKey) {
       addToast({
@@ -158,17 +182,7 @@ export default function PlaygroundPage() {
     setError(null);
     setResult(null);
 
-    const spec: SwarmSpec = {
-      name: swarmName.trim() || undefined,
-      swarm_type: swarmType,
-      task: task.trim(),
-      rules: rules.trim() || undefined,
-      max_loops: maxLoops,
-      agents,
-      ...(swarmType === 'AgentRearrange' && rearrangeFlow.trim()
-        ? { rearrange_flow: rearrangeFlow.trim() }
-        : {}),
-    };
+    const spec: SwarmSpec = buildSpec();
 
     try {
       const res = await fetch('/api/swarm', {
@@ -288,6 +302,25 @@ export default function PlaygroundPage() {
                   placeholder="Constraints or guidelines the agents must follow…"
                   rows={2}
                 />
+
+                <div className="flex flex-col gap-1.5">
+                  <label className={fieldLabel}>
+                    <span className="inline-flex items-center gap-1.5">
+                      <ImageIcon className="w-3 h-3 text-muted-foreground" />
+                      Image URL (optional)
+                    </span>
+                  </label>
+                  <input
+                    type="url"
+                    value={imgUrl}
+                    onChange={(e) => setImgUrl(e.target.value)}
+                    placeholder="https://example.com/diagram.png"
+                    className={inputBase}
+                  />
+                  <span className="text-[11px] text-muted-foreground">
+                    Sent as the top-level <code className="text-foreground">img</code> field. Use a publicly reachable URL.
+                  </span>
+                </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1.5">
@@ -425,6 +458,13 @@ export default function PlaygroundPage() {
                   </p>
                 </div>
               )}
+
+              <SnippetPreview
+                endpoint="/v1/swarm/completions"
+                method="POST"
+                payload={previewSpec}
+                title="Request preview"
+              />
             </div>
           </div>
         </div>

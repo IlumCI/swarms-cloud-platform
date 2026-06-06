@@ -128,6 +128,10 @@ export interface SwarmAgentSpec {
   temperature?: number;
   auto_generate_prompt?: boolean;
   streaming_on?: boolean;
+  /** Single base64 image for the agent to process. */
+  img?: string;
+  /** Multiple base64 images for the agent to process. */
+  imgs?: string[];
 }
 
 export interface SwarmSpec {
@@ -140,6 +144,8 @@ export interface SwarmSpec {
   rules?: string;
   max_loops?: number;
   stream?: boolean;
+  /** Optional image URL associated with the swarm task. */
+  img?: string;
 }
 
 export interface SwarmCompletion {

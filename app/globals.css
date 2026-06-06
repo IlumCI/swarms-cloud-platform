@@ -187,8 +187,9 @@
 
   /* Page layout helpers (kept) */
   .page-wrapper {
-    @apply min-h-screen min-h-[100dvh] w-full max-w-[100vw] flex flex-col overflow-x-hidden;
+    @apply flex-1 w-full max-w-[100vw] flex flex-col overflow-x-hidden;
     background-color: rgb(var(--background));
+    padding-bottom: calc(2.25rem + env(safe-area-inset-bottom));
   }
 
   .page-main {

@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { ToastContainer } from '@/components/ui/Toast';
 import { ThemeProvider, themeInitScript } from '@/components/layout/ThemeProvider';
+import { Footer } from '@/components/layout/Footer';
 import { ApiKeyGate } from '@/components/auth/ApiKeyGate';
 import {
   SITE,
@@ -136,8 +137,9 @@ export default function RootLayout({
       </head>
       <body className="antialiased overflow-x-hidden max-w-[100vw] bg-background text-foreground">
         <ThemeProvider>
-          <div className="min-w-0 max-w-full overflow-x-hidden">
-            {children}
+          <div className="min-h-screen min-h-[100dvh] min-w-0 max-w-full overflow-x-hidden flex flex-col">
+            <div className="flex-1 flex flex-col min-w-0">{children}</div>
+            <Footer />
             <ApiKeyGate />
             <ToastContainer />
           </div>
