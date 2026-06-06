@@ -19,10 +19,10 @@ function deriveErrorMessage(status: number, errorData: any): string {
     `API Error: ${status}`;
 
   if (status === 403) {
-    return 'API key is invalid or does not have permission. Please check your SWARMS_API_KEY in .env.local';
+    return 'API key is invalid or does not have permission. Please check your SWARMS_API_KEY in .env';
   }
   if (status === 401) {
-    return 'API key is missing or invalid. Please set SWARMS_API_KEY in .env.local';
+    return 'API key is missing or invalid. Please set SWARMS_API_KEY in .env';
   }
   if (status === 429) {
     return 'Rate limit exceeded. Please try again later.';

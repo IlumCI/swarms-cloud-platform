@@ -98,7 +98,7 @@ pnpm install
 
 ## Environment
 
-Create `.env.local` at the project root and populate the variables you need.
+Create `.env` at the project root and populate the variables you need.
 None are strictly required at boot — the app will prompt for an API key on
 first load if `SWARMS_API_KEY` is unset — but production deployments should
 configure all of the relevant ones.
@@ -196,7 +196,7 @@ pnpm dev
 **`401 / 403` responses from `/api/*`**
 
 The Swarms API key is missing, invalid, or lacks permission. Confirm
-`SWARMS_API_KEY` in `.env.local` or update the key from Settings.
+`SWARMS_API_KEY` in `.env` or update the key from Settings.
 
 **Credits or models look stale**
 
