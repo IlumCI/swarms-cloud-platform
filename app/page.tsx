@@ -7,6 +7,7 @@ import { RateLimitCard } from '@/components/dashboard/RateLimitCard';
 import { RecentAppsCard } from '@/components/dashboard/RecentAppsCard';
 import { RecentAgentsCard } from '@/components/dashboard/RecentAgentsCard';
 import { PremiumUpgradeCard } from '@/components/dashboard/PremiumUpgradeCard';
+import { ExecutionHistoryPreview } from '@/components/dashboard/ExecutionHistoryPreview';
 import { useRateLimits } from '@/lib/hooks/useRateLimits';
 import { useAgentConfigsList } from '@/lib/hooks/useAgentConfigsList';
 import { useSwarmLogs } from '@/lib/hooks/useSwarmLogs';
@@ -113,6 +114,11 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-6">
             <RecentAppsCard />
             <RecentAgentsCard />
+          </div>
+
+          {/* Recent executions preview */}
+          <div className="mb-6">
+            <ExecutionHistoryPreview />
           </div>
 
           {/* Premium upgrade */}
