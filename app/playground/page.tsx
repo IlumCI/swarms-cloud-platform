@@ -422,7 +422,7 @@ export default function PlaygroundPage() {
                       Run failed
                     </div>
                   </div>
-                  <p className="text-sm text-foreground/80 ml-6 break-words">
+                  <p className="text-sm text-foreground/80 ml-6 break-words whitespace-pre-line">
                     {error}
                   </p>
                 </div>
