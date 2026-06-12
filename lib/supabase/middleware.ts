@@ -12,6 +12,7 @@ const PUBLIC_PATH_PREFIXES = [
   '/auth',
   '/terms',
   '/privacy',
+  '/learn-more',
 ];
 
 function isPublicPath(pathname: string): boolean {

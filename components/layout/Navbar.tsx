@@ -27,6 +27,7 @@ import {
   Wand2,
   AppWindow,
   Package,
+  KeyRound,
 } from 'lucide-react';
 
 interface TabItem {
@@ -69,6 +70,7 @@ export function Navbar() {
     { href: '/playground', label: 'Playground', icon: Sparkles },
     { href: '/prompts', label: 'Prompts', icon: Wand2 },
     { href: '/pricing', label: 'Pricing', icon: Calculator },
+    { href: '/api-keys', label: 'API Keys', icon: KeyRound },
     { href: '/settings', label: 'Settings', icon: Settings },
   ];
 

@@ -61,6 +61,10 @@ const config: Config = {
           foreground: token('accent-foreground'),
           muted: token('accent-muted'),
         },
+        brand: {
+          DEFAULT: token('brand'),
+          foreground: token('brand-foreground'),
+        },
         success: {
           DEFAULT: token('success'),
           foreground: token('success-foreground'),
