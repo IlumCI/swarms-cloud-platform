@@ -12,22 +12,51 @@ import {
   SwarmCompletion,
 } from '@/types/api';
 
-function deriveErrorMessage(status: number, errorData: any): string {
-  const fromBody =
-    errorData?.message ||
-    errorData?.error?.message ||
-    `API Error: ${status}`;
+/**
+ * The Swarms API is FastAPI, so 4xx/5xx errors arrive as `{ detail: ... }`
+ * where `detail` is one of:
+ *   - a string                      e.g. "Agent name is required…"
+ *   - an object with a `message`    e.g. the premium-model 403 payload
+ *   - an array of Pydantic errors   422 body validation: [{ loc, msg }, …]
+ * Reading only `message`/`error.message` (the old behaviour) missed all three,
+ * so every upstream error collapsed to "API Error: <status>". Pull the real
+ * detail out here and let the route layer (lib/api/errors.ts) decide how much
+ * of it to surface per status.
+ */
+function messageFromDetail(detail: unknown): string | undefined {
+  if (typeof detail === 'string') {
+    return detail.trim() || undefined;
+  }
+  if (Array.isArray(detail)) {
+    const parts = detail
+      .map((d: any) => {
+        const loc = Array.isArray(d?.loc)
+          ? d.loc.filter((p: unknown) => p !== 'body').join('.')
+          : '';
+        const msg = d?.msg || d?.message || '';
+        return loc && msg ? `${loc}: ${msg}` : msg || loc;
+      })
+      .filter(Boolean);
+    return parts.length ? parts.join('; ') : undefined;
+  }
+  if (detail && typeof detail === 'object') {
+    const o = detail as Record<string, unknown>;
+    const msg = o.message ?? o.error;
+    return typeof msg === 'string' && msg.trim() ? msg : undefined;
+  }
+  return undefined;
+}
 
-  if (status === 403) {
-    return 'API key is invalid or does not have permission. Please check your SWARMS_API_KEY in .env';
-  }
-  if (status === 401) {
-    return 'API key is missing or invalid. Please set SWARMS_API_KEY in .env';
-  }
-  if (status === 429) {
-    return 'Rate limit exceeded. Please try again later.';
-  }
-  return fromBody;
+function deriveErrorMessage(status: number, errorData: any): string {
+  return (
+    messageFromDetail(errorData?.detail) ||
+    (typeof errorData?.message === 'string' ? errorData.message : undefined) ||
+    (typeof errorData?.error?.message === 'string'
+      ? errorData.error.message
+      : undefined) ||
+    (typeof errorData?.error === 'string' ? errorData.error : undefined) ||
+    `API Error: ${status}`
+  );
 }
 
 async function parseError(response: Response): Promise<APIError> {
