@@ -11,9 +11,18 @@ import {
   Settings,
   AppWindow,
   Package,
+  Activity,
+  KeyRound,
+  BookOpen,
 } from 'lucide-react';
 
-export type AppCategory = 'operate' | 'catalog' | 'build' | 'tools' | 'account';
+export type AppCategory =
+  | 'operate'
+  | 'catalog'
+  | 'build'
+  | 'tools'
+  | 'account'
+  | 'discover';
 
 export type AppStatus = 'live' | 'beta' | 'soon';
 
@@ -54,7 +63,11 @@ export const APP_CATEGORIES: Record<
   },
   account: {
     label: 'Account',
-    description: 'Workspace settings, API key, and credit balance.',
+    description: 'Workspace settings, API keys, and credit balance.',
+  },
+  discover: {
+    label: 'Discover',
+    description: 'Learn what the platform offers and how to get started.',
   },
 };
 
@@ -64,6 +77,7 @@ export const CATEGORY_ORDER: AppCategory[] = [
   'catalog',
   'tools',
   'account',
+  'discover',
 ];
 
 const STATUS_LABEL: Record<AppStatus, string> = {
@@ -106,6 +120,25 @@ export const APPS: AppEntry[] = [
       'API request log explorer backed by /v1/swarm/logs. Search and paginate every agent and swarm run with token usage and cost breakdowns.',
     keywords: ['executions', 'logs', 'runs', 'past', 'observability', 'audit'],
     icon: History,
+    category: 'operate',
+    status: 'live',
+  },
+  {
+    href: '/observability',
+    label: 'Observability',
+    description: 'Monitor latency, errors, and performance.',
+    longDescription:
+      'Real-time monitoring for API requests — latency, error rates, cache hit rate, and rate-limit windows across every agent and swarm execution.',
+    keywords: [
+      'monitoring',
+      'latency',
+      'errors',
+      'performance',
+      'telemetry',
+      'metrics',
+      'cache',
+    ],
+    icon: Activity,
     category: 'operate',
     status: 'live',
   },
@@ -247,6 +280,26 @@ export const APPS: AppEntry[] = [
     status: 'live',
   },
   {
+    href: '/api-keys',
+    label: 'API keys',
+    description: 'View, create, and revoke API keys.',
+    longDescription:
+      'Manage the API keys that authenticate your apps against the Swarms API. Full keys are shown once at creation; revoke compromised keys instantly.',
+    keywords: [
+      'api key',
+      'keys',
+      'authentication',
+      'credentials',
+      'token',
+      'security',
+      'create key',
+      'revoke',
+    ],
+    icon: KeyRound,
+    category: 'account',
+    status: 'live',
+  },
+  {
     href: '/settings',
     label: 'Settings',
     description: 'API keys, preferences, and workspace settings.',
@@ -255,6 +308,25 @@ export const APPS: AppEntry[] = [
     keywords: ['api key', 'preferences', 'config', 'account', 'credits'],
     icon: Settings,
     category: 'account',
+    status: 'live',
+  },
+  {
+    href: '/learn-more',
+    label: 'Learn more',
+    description: 'Product overview of The Swarms Cloud.',
+    longDescription:
+      'The Swarms Cloud in one page — capabilities, all 16 swarm architectures, the management console, global infrastructure, pricing, and SDKs.',
+    keywords: [
+      'about',
+      'overview',
+      'introduction',
+      'landing',
+      'features',
+      'enterprise',
+      'what is swarms',
+    ],
+    icon: BookOpen,
+    category: 'discover',
     status: 'live',
   },
 ];

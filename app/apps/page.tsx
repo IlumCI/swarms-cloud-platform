@@ -42,6 +42,11 @@ const CATEGORY_ACCENT: Record<
     tint: 'bg-subtle border-border',
     iconColor: 'text-muted-foreground',
   },
+  discover: {
+    dot: 'bg-brand',
+    tint: 'bg-brand/5 border-brand/20',
+    iconColor: 'text-brand',
+  },
 };
 
 function matchesQuery(entry: AppEntry, q: string): boolean {

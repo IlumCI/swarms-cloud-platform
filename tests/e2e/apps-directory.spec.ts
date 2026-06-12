@@ -15,6 +15,8 @@ test.describe('Apps directory', () => {
     // Each app shows up as a link card with the route as its href
     for (const href of [
       '/',
+      '/history',
+      '/observability',
       '/workbench',
       '/agents',
       '/playground',
@@ -23,6 +25,7 @@ test.describe('Apps directory', () => {
       '/sdks',
       '/prompts',
       '/pricing',
+      '/api-keys',
       '/settings',
     ]) {
       await expect(
