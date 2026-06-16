@@ -29,6 +29,8 @@ import {
   Package,
   KeyRound,
   BookOpen,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 
 interface TabItem {
@@ -57,6 +59,39 @@ export function Navbar() {
     (sum, agent) => sum + agent.execution_history.length,
     0
   );
+
+  // Horizontal scroll controls for the tab strip.
+  const tabStripRef = React.useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = React.useState(false);
+  const [canScrollRight, setCanScrollRight] = React.useState(false);
+
+  const updateScrollAffordance = React.useCallback(() => {
+    const el = tabStripRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanScrollLeft(scrollLeft > 1);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
+  }, []);
+
+  React.useEffect(() => {
+    const el = tabStripRef.current;
+    if (!el) return;
+    updateScrollAffordance();
+    el.addEventListener('scroll', updateScrollAffordance, { passive: true });
+    const observer = new ResizeObserver(updateScrollAffordance);
+    observer.observe(el);
+    return () => {
+      el.removeEventListener('scroll', updateScrollAffordance);
+      observer.disconnect();
+    };
+  }, [updateScrollAffordance, hydrated]);
+
+  const scrollTabs = (direction: 1 | -1) => {
+    const el = tabStripRef.current;
+    if (!el) return;
+    const amount = Math.max(160, el.clientWidth * 0.7);
+    el.scrollBy({ left: direction * amount, behavior: 'smooth' });
+  };
 
   const tabs: TabItem[] = [
     { href: '/', label: 'Dashboard', icon: LayoutGrid },
@@ -133,14 +168,34 @@ export function Navbar() {
 
       {/* Row 2 — tab strip (AWS-style underline-active) */}
       <nav
-        className="bg-background border-b border-border"
+        className="relative bg-background border-b border-border"
         style={{
           paddingLeft: 'max(0.75rem, env(safe-area-inset-left))',
           paddingRight: 'max(0.75rem, env(safe-area-inset-right))',
         }}
         aria-label="Primary"
       >
-        <div className="px-2 sm:px-3 overflow-x-auto sidebar-scroll">
+        {canScrollLeft && (
+          <button
+            type="button"
+            aria-label="Scroll tabs left"
+            onClick={() => scrollTabs(-1)}
+            className="absolute left-0 inset-y-0 z-10 flex items-center justify-start pl-1 pr-6 w-14 bg-gradient-to-r from-background via-background to-transparent text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+        )}
+        {canScrollRight && (
+          <button
+            type="button"
+            aria-label="Scroll tabs right"
+            onClick={() => scrollTabs(1)}
+            className="absolute right-0 inset-y-0 z-10 flex items-center justify-end pr-1 pl-6 w-14 bg-gradient-to-l from-background via-background to-transparent text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        )}
+        <div ref={tabStripRef} className="px-2 sm:px-3 overflow-x-auto nav-scroll">
           <ul className="flex items-stretch gap-0.5 min-w-max">
             {tabs.map((tab) => {
               const isActive =

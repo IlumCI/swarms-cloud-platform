@@ -191,6 +191,19 @@
     background-color: rgb(var(--muted-foreground) / 0.6);
   }
 
+  /* Horizontal nav tab strip: scrollable, but no visible scrollbar.
+     The chevron buttons in Navbar provide the scroll affordance. */
+  .nav-scroll {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* legacy Edge/IE */
+  }
+
+  .nav-scroll::-webkit-scrollbar {
+    height: 0;
+    width: 0;
+    display: none;
+  }
+
   /* Page layout helpers (kept) */
   .page-wrapper {
     @apply flex-1 w-full max-w-[100vw] flex flex-col overflow-x-hidden;
