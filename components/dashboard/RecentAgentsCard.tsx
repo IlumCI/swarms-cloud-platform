@@ -71,7 +71,7 @@ export function RecentAgentsCard({
         <div className="flex items-center gap-2">
           <Bot className="w-3.5 h-3.5 text-muted-foreground" />
           <h2 className="text-sm font-semibold tracking-tight text-foreground">
-            Recently called agents
+            Agents Called Recently
           </h2>
         </div>
         {totalCalls > 0 && (
