@@ -4,27 +4,39 @@ import { resolveApiKey } from '@/lib/api/server-api-key';
 import { jsonErrorFromUnknown } from '@/lib/api/errors';
 
 export async function POST(request: NextRequest) {
-  const apiKey = await resolveApiKey();
-
-  if (!apiKey) {
-    return NextResponse.json(
-      { error: 'No Swarms API key found. Sign in or create one in your Swarms account.' },
-      { status: 401 }
-    );
-  }
-
   try {
     let body;
     try {
       body = await request.json();
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { error: 'Invalid JSON in request body' },
         { status: 400 }
       );
     }
-    
-    const { agent_config, task, ...options } = body;
+
+    const { agent_config, task, search, category, priceFilter, userFilter, sortBy, limit, offset, ...options } = body;
+
+    if (search !== undefined || category !== undefined || priceFilter !== undefined) {
+      const response = await fetch('https://swarms.world/api/query-agents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ search, category, priceFilter, userFilter, sortBy, limit, offset }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        return NextResponse.json(data, { status: response.status });
+      }
+      return NextResponse.json(data);
+    }
+
+    const apiKey = await resolveApiKey();
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: 'No Swarms API key found. Sign in or create one in your Swarms account.' },
+        { status: 401 }
+      );
+    }
 
     if (!agent_config || !task) {
       return NextResponse.json(
