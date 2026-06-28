@@ -2,7 +2,12 @@
 
 import React, { useMemo, useState } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
-import { LogCard } from '@/components/outputs/LogCard';
+import {
+  LogTable,
+  sortLogs,
+  type LogSortKey,
+  type LogSortOrder,
+} from '@/components/outputs/LogTable';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { Pagination } from '@/components/ui/Pagination';
 import { useSwarmLogs } from '@/lib/hooks/useSwarmLogs';
@@ -61,6 +66,17 @@ export default function HistoryPage() {
   const [datePreset, setDatePreset] = useState<DatePreset>('all');
   const [customFrom, setCustomFrom] = useState('');
   const [customTo, setCustomTo] = useState('');
+  const [sortKey, setSortKey] = useState<LogSortKey>('timestamp');
+  const [sortOrder, setSortOrder] = useState<LogSortOrder>('desc');
+
+  const handleSort = (key: LogSortKey) => {
+    if (sortKey === key) {
+      setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortKey(key);
+      setSortOrder(key === 'agent' ? 'asc' : 'desc');
+    }
+  };
 
   const activeRange = useMemo<{ from: number; to: number } | null>(() => {
     if (datePreset === 'custom') {
@@ -106,14 +122,19 @@ export default function HistoryPage() {
     });
   }, [logs, searchQuery, activeRange]);
 
+  const sortedLogs = useMemo(
+    () => sortLogs(filteredLogs, sortKey, sortOrder),
+    [filteredLogs, sortKey, sortOrder]
+  );
+
   const paginatedLogs = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return filteredLogs.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredLogs, currentPage, itemsPerPage]);
+    return sortedLogs.slice(startIndex, startIndex + itemsPerPage);
+  }, [sortedLogs, currentPage, itemsPerPage]);
 
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, datePreset, customFrom, customTo]);
+  }, [searchQuery, datePreset, customFrom, customTo, sortKey, sortOrder]);
 
   const totalPages = Math.ceil(filteredLogs.length / itemsPerPage);
 
@@ -309,11 +330,12 @@ export default function HistoryPage() {
             />
           ) : (
             <>
-              <div className="space-y-3">
-                {paginatedLogs.map((log) => (
-                  <LogCard key={log.id} entry={log} />
-                ))}
-              </div>
+              <LogTable
+                entries={paginatedLogs}
+                sortKey={sortKey}
+                sortOrder={sortOrder}
+                onSort={handleSort}
+              />
               {totalPages > 1 && (
                 <Pagination
                   currentPage={currentPage}
