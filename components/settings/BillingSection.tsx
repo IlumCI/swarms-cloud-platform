@@ -1,16 +1,19 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSubscription, isActiveStatus } from '@/lib/hooks/useSubscription';
 import { PLANS, getPlan, type PlanId } from '@/lib/billing/plans';
 import { useUIStore } from '@/lib/store/ui-store';
 import { apiFetch } from '@/lib/api/client-fetch';
+import { Modal } from '@/components/ui/Modal';
 import {
   Crown,
   Check,
   Loader2,
   ArrowRight,
   CircleAlert,
+  Sparkles,
+  RefreshCw,
 } from 'lucide-react';
 
 function formatDate(iso: string | null): string {
@@ -29,24 +32,31 @@ export function BillingSection() {
   const addToast = useUIStore((s) => s.addToast);
   const [busyPlan, setBusyPlan] = useState<PlanId | null>(null);
   const [canceling, setCanceling] = useState(false);
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+
+  // Reconcile straight from Stripe (does not depend on the webhook), then
+  // refresh the displayed status.
+  const syncNow = useCallback(async () => {
+    setSyncing(true);
+    try {
+      await apiFetch('/api/billing/sync', { method: 'POST' });
+    } catch {
+      // ignore — refetch still reflects the last known state
+    }
+    await refetch();
+    setSyncing(false);
+  }, [refetch]);
 
   // Surface the result of a returning Stripe Checkout redirect, then clean the
-  // URL so a refresh doesn't re-toast.
+  // URL so a refresh doesn't re-trigger it.
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     const checkout = params.get('checkout');
     if (!checkout) return;
-    if (checkout === 'success') {
-      addToast({
-        type: 'success',
-        message: 'Subscription active. Welcome aboard.',
-        duration: 4000,
-      });
-      refetch();
-    } else if (checkout === 'cancel') {
-      addToast({ type: 'info', message: 'Checkout canceled.', duration: 3000 });
-    }
+
+    // Clean the query first so a refresh doesn't replay this.
     params.delete('checkout');
     const qs = params.toString();
     window.history.replaceState(
@@ -54,10 +64,32 @@ export function BillingSection() {
       '',
       window.location.pathname + (qs ? `?${qs}` : '')
     );
-  }, [addToast, refetch]);
 
-  const active = isActiveStatus(data?.status);
-  const currentPlan = active ? (data?.plan as PlanId | null) : null;
+    if (checkout === 'success') {
+      setSuccessOpen(true);
+      // Reconcile from Stripe directly so the plan reflects immediately, even if
+      // the webhook is delayed or misconfigured. Retry briefly for consistency.
+      let cancelled = false;
+      (async () => {
+        for (let i = 0; i < 3 && !cancelled; i++) {
+          await syncNow();
+          await new Promise((r) => setTimeout(r, 1500));
+        }
+      })();
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    if (checkout === 'cancel') {
+      addToast({ type: 'info', message: 'Checkout canceled.', duration: 3000 });
+    }
+  }, [addToast, syncNow]);
+
+  // `tier` is the entitlement source of truth. Treat the user as subscribed if
+  // the tier is a paid plan even when the subscription row is missing/lagging.
+  const currentPlan = (data?.plan as PlanId | null) ?? null;
+  const active = isActiveStatus(data?.status) || Boolean(currentPlan);
 
   const upgrade = async (plan: PlanId) => {
     setBusyPlan(plan);
@@ -127,6 +159,16 @@ export function BillingSection() {
             Upgrade for higher limits and premium features. Cancel anytime.
           </p>
         </div>
+        <button
+          type="button"
+          onClick={syncNow}
+          disabled={syncing}
+          className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-50 flex-shrink-0"
+          aria-label="Refresh subscription status"
+          title="Refresh from Stripe"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
+        </button>
       </header>
 
       <div className="p-5 space-y-4">
@@ -274,6 +316,32 @@ export function BillingSection() {
           </div>
         )}
       </div>
+
+      <Modal isOpen={successOpen} onClose={() => setSuccessOpen(false)}>
+        <div className="text-center py-2">
+          <div className="mx-auto w-14 h-14 rounded-full bg-success/10 border border-success/30 flex items-center justify-center mb-4">
+            <Sparkles className="w-6 h-6 text-success" />
+          </div>
+          <h3 className="text-lg font-semibold tracking-tight text-foreground">
+            {getPlan(data?.plan)
+              ? `You're on ${getPlan(data?.plan)!.label}!`
+              : 'Subscription activated'}
+          </h3>
+          <p className="text-sm text-muted-foreground mt-1.5 max-w-sm mx-auto">
+            {getPlan(data?.plan)
+              ? 'Your membership is active. Enjoy higher limits, priority compute, and premium features.'
+              : 'Payment received. Your plan is being activated — this can take a few seconds.'}
+          </p>
+          <button
+            type="button"
+            onClick={() => setSuccessOpen(false)}
+            className="mt-5 inline-flex items-center justify-center gap-1.5 h-10 px-5 rounded-md bg-foreground text-background text-sm font-medium hover:bg-foreground/90 transition-colors"
+          >
+            Get started
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </Modal>
     </section>
   );
 }

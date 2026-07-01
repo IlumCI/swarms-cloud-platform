@@ -23,9 +23,10 @@ function toIso(unix: number | null | undefined): string | null {
  */
 export async function applySubscription(
   admin: SupabaseClient,
-  sub: Stripe.Subscription
+  sub: Stripe.Subscription,
+  userIdOverride?: string
 ): Promise<void> {
-  const userId = sub.metadata?.supabase_user_id;
+  const userId = userIdOverride ?? sub.metadata?.supabase_user_id;
   if (!userId) {
     console.warn(
       `[billing] subscription ${sub.id} has no supabase_user_id metadata; skipping`

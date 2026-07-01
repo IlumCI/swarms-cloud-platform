@@ -265,6 +265,22 @@ export default function SettingsPage() {
             </header>
 
             <div className="p-5 space-y-4">
+              {profile?.full_name?.trim() && (
+                <div className="flex items-center justify-between gap-3 rounded-md border border-border bg-subtle px-4 py-3">
+                  <div className="min-w-0">
+                    <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                      Name
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-0.5">
+                      Your display name.
+                    </div>
+                  </div>
+                  <span className="text-sm font-medium text-foreground truncate text-right max-w-[60%]">
+                    {profile.full_name}
+                  </span>
+                </div>
+              )}
+
               <div className="flex items-center justify-between gap-3 rounded-md border border-border bg-subtle px-4 py-3">
                 <div className="min-w-0">
                   <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
