@@ -7,6 +7,7 @@ import { RateLimitCard } from '@/components/dashboard/RateLimitCard';
 import { RecentAppsCard } from '@/components/dashboard/RecentAppsCard';
 import { RecentAgentsCard } from '@/components/dashboard/RecentAgentsCard';
 import { PremiumUpgradeCard } from '@/components/dashboard/PremiumUpgradeCard';
+import { FreedomModeCard } from '@/components/dashboard/FreedomModeCard';
 import { ExecutionHistoryPreview } from '@/components/dashboard/ExecutionHistoryPreview';
 import { useRateLimits } from '@/lib/hooks/useRateLimits';
 import { useAgentConfigsList } from '@/lib/hooks/useAgentConfigsList';
@@ -79,6 +80,8 @@ export default function DashboardPage() {
               Refresh
             </button>
           </div>
+
+          <FreedomModeCard />
 
           {/* Primary metrics grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
