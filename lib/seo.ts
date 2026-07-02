@@ -159,6 +159,7 @@ export const organizationJsonLd = {
   sameAs: [
     'https://swarms.ai',
     'https://docs.swarms.ai',
+    'https://docs.swarms.world',
     'https://github.com/kyegomez/swarms',
     'https://twitter.com/swarms_corp',
   ],

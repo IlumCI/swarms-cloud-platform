@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { SwarmsMark } from '@/components/auth/BrandMarks';
-import { buildMetadata } from '@/lib/seo';
+import { buildMetadata, SITE } from '@/lib/seo';
 import {
   Activity,
   ArrowRight,
@@ -31,10 +31,23 @@ import {
 } from 'lucide-react';
 
 export const metadata = buildMetadata({
-  title: 'Learn more',
+  title: 'The Swarms Cloud — Multi-Agent AI Platform',
   description:
-    'Meet The Swarms Cloud — the ultimate multi-agent management system. Orchestrate 16 swarm architectures across 20+ API endpoints, with global infrastructure, full observability, and one unified token rate.',
+    'Build, deploy, and scale multi-agent AI systems with Swarms Cloud. Orchestrate 16 swarm architectures, reasoning agents, and batch workflows through an OpenAI-compatible API. Join 7M+ developers using Swarms.',
   path: '/learn-more',
+  keywords: [
+    'multi-agent AI platform',
+    'Claude agents',
+    'GPT agents',
+    'agentic AI',
+    'AI agent orchestration',
+    'batch AI agents',
+    'reasoning agents',
+    'OpenAI compatible API',
+    'hierarchical swarm',
+    'sequential workflow',
+    'concurrent workflow',
+  ],
 });
 
 const HERO_STATS = [
@@ -265,22 +278,22 @@ const FAQS = [
   {
     question: 'What is The Swarms Cloud?',
     answer:
-      'The Swarms Cloud is the enterprise platform for building, deploying, and managing multi-agent AI systems. It pairs a production API — 20+ endpoints for agents, swarms, research, and reasoning — with a management console that gives you observability, history, and cost control over every run.',
+      'The Swarms Cloud is the enterprise platform for building, deploying, and managing multi-agent AI systems. It pairs a production API with 20+ endpoints for agents, swarms, research, and reasoning with a management console for observability, execution history, and cost control.',
   },
   {
     question: 'How is it different from calling a model API directly?',
     answer:
-      'A raw model call gives you one completion. The Swarms Cloud gives you orchestration and management: 16 multi-agent architectures, automatic swarm construction, batch operations, tool integrations like MCP and web search, plus execution history and rate-limit telemetry for everything you run.',
+      'Swarms Cloud adds orchestration and management on top of raw model calls: 16 multi-agent architectures, automatic swarm construction, batch operations, tool integrations (MCP, web search), and execution history with rate-limit telemetry — all through an OpenAI-compatible endpoint.',
   },
   {
     question: 'Which models can my agents use?',
     answer:
-      'The live model catalog spans frontier providers — GPT, Claude, Gemini, Llama, and more. Each agent in a swarm can use a different model, so you can match capability and cost to each role.',
+      'Any model from the live catalog: GPT, Claude, Gemini, Llama, and other frontier providers. Each agent in a swarm can use a different model, letting you match capability and cost to each role independently.',
   },
   {
     question: 'How does pricing work?',
     answer:
-      'Pricing is token-based with one unified rate: $6.50 per million input tokens and $18.50 per million output tokens, plus add-ons for images, MCP calls, and web tools. Night mode takes 50% off swarm-completion tokens between 8 PM and 6 AM Pacific, and the calculator models your exact workload.',
+      'Token-based pricing at $6.50 per 1M input tokens and $18.50 per 1M output tokens, with a flat unified rate across all models. Night mode offers 50% off swarm tokens from 8 PM to 6 AM Pacific. Use the pricing calculator to model your exact workload.',
   },
 ];
 
@@ -408,8 +421,66 @@ async function getSignedIn(): Promise<boolean> {
 export default async function LearnMorePage() {
   const signedIn = await getSignedIn();
 
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQS.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  };
+
+  const howToJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'How to deploy a multi-agent swarm with Swarms Cloud',
+    description:
+      'Build, deploy, and manage multi-agent AI systems in three steps using the Swarms Cloud platform.',
+    step: WORKFLOW_STEPS.map((step) => ({
+      '@type': 'HowToStep',
+      name: step.title,
+      text: step.description,
+      position: parseInt(step.step),
+    })),
+  };
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: SITE.url,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Learn More',
+        item: `${SITE.url}/learn-more`,
+      },
+    ],
+  };
+
   return (
     <div className="page-wrapper">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <PublicHeader signedIn={signedIn} />
 
       <main className="page-main">
@@ -502,6 +573,17 @@ export default async function LearnMorePage() {
                   </li>
                 ))}
               </ul>
+              <p className="mt-5 text-sm text-muted-foreground">
+                New to Swarms?{' '}
+                <a
+                  href="https://docs.swarms.ai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-brand hover:underline"
+                >
+                  Visit the API documentation → docs.swarms.ai
+                </a>
+              </p>
             </div>
             <div className="rounded-lg border border-border bg-subtle overflow-hidden">
               <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border">
@@ -761,7 +843,7 @@ export default async function LearnMorePage() {
                 </div>
               ))}
             </div>
-            <p className="text-center mt-8">
+            <p className="text-center mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 href="/sdks"
                 className="inline-flex items-center gap-1.5 text-sm text-brand hover:underline underline-offset-4"
@@ -769,6 +851,15 @@ export default async function LearnMorePage() {
                 Browse SDKs and quickstarts
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
+              <a
+                href="https://docs.swarms.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Full API reference
+                <ArrowRight className="w-3.5 h-3.5" />
+              </a>
             </p>
           </div>
         </section>
@@ -827,6 +918,32 @@ export default async function LearnMorePage() {
                   </CtaLink>
                 </>
               )}
+            </div>
+            <div className="mt-6 flex items-center justify-center gap-5">
+              <a
+                href="https://github.com/kyegomez/swarms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <svg
+                  className="w-4 h-4"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+                </svg>
+                Star on GitHub
+              </a>
+              <a
+                href="https://docs.swarms.world"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Open-source swarms package
+                <ArrowRight className="w-3 h-3" />
+              </a>
             </div>
           </div>
         </section>

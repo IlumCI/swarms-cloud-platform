@@ -23,6 +23,12 @@ export function Footer() {
     >
       <div className="h-9 w-full min-w-0 px-3 sm:px-4 flex items-center justify-between gap-3 text-[11px] text-muted-foreground">
         <div className="flex items-center gap-3 sm:gap-4 min-w-0 overflow-x-auto sidebar-scroll">
+          <Link
+            href="/learn-more"
+            className="hover:text-foreground transition-colors whitespace-nowrap"
+          >
+            Learn More
+          </Link>
           <a
             href="https://docs.swarms.ai"
             target="_blank"

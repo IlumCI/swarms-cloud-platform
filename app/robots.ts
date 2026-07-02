@@ -9,6 +9,10 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
         disallow: ['/api/', '/settings'],
       },
+      {
+        userAgent: '*',
+        allow: '/llms.txt',
+      },
     ],
     sitemap: `${SITE.url}/sitemap.xml`,
     host: SITE.url,
