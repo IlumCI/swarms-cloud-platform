@@ -1,0 +1,56 @@
+# Swarms Cloud — Multi-Agent AI Platform
+
+> Build, deploy, and scale multi-agent AI systems. Orchestrate 17+ swarm architectures — Hierarchical, Sequential, Concurrent, Mixture-of-Agents, Council, Debate-with-Judge, and more — through an OpenAI-compatible API powered by a Rust agent runtime.
+
+Swarms Cloud is the enterprise-grade platform for building, deploying, and scaling multi-agent AI systems. Manage single agents, reasoning agents, and production swarm workflows from a unified API with full observability, execution history, and transparent rate limits.
+
+## Getting Started
+
+- [API Documentation](https://docs.swarms.ai): Complete reference for the Swarms Cloud REST API
+- [Python SDK](https://docs.swarms.ai): `pip install swarms` — official Python client
+- [TypeScript SDK](https://docs.swarms.ai): `@swarms/sdk` — for Node, Deno, and edge runtimes
+- [Go SDK](https://docs.swarms.ai): Idiomatic Go client for production services
+- [Create an Account](https://swarms.ai/signup): Free workspace with included credits
+
+## Key Features
+
+- [Agents & Swarms](https://swarms.ai/swarms): 16+ multi-agent coordination patterns — Hierarchical, Sequential, Concurrent, Graph, Mixture-of-Agents, Council, Debate, Router, Majority Voting, Group Chat, and more
+- [Reasoning Agents](https://swarms.ai/models): Dedicated completions for step-by-step reasoning tasks
+- [Deep Research](https://swarms.ai/swarms): Research agents that fan out across sources and synthesize findings
+- [Batch Operations](https://swarms.ai/apps): Run agent fleets in a single API call with grid workflows
+- [Tools & MCP](https://docs.swarms.ai): Exa web search, Model Context Protocol servers, vision, function calling
+- [Structured Outputs](https://docs.swarms.ai): Schema-enforced JSON from any agent or swarm
+- [OpenAI-Compatible API](https://swarms.ai/learn-more): Drop-in /v1/chat/completions replacement
+
+## Pricing
+
+- [$6.50 per 1M input tokens](https://swarms.ai/pricing): Unified rate across all supported models
+- $18.50 per 1M output tokens
+- [Night Mode](https://swarms.ai/pricing): 50% discount on swarm tokens, 8 PM–6 AM Pacific
+- [Calculator](https://swarms.ai/pricing): Model your exact workload by tokens, agents, and tools
+
+## API Reference
+
+- [API Overview](https://docs.swarms.ai): Authentication, rate limits, and base URLs
+- [/v1/agent/completions](https://docs.swarms.ai): Single agent execution
+- [/v1/swarm/completions](https://docs.swarms.ai): Multi-agent swarm orchestration
+- [/v1/research](https://docs.swarms.ai): Deep research sessions
+- [/v1/reasoning](https://docs.swarms.ai): Reasoning agent completions
+- [/v1/batch](https://docs.swarms.ai): Batched fleet operations
+- [API Keys](https://swarms.ai/api-keys): Create and manage workspace API keys
+
+## Management Console
+
+- [Workbench](https://swarms.ai/workbench): Author, configure, and test agents against production
+- [Playground](https://swarms.ai/playground): Compose multi-agent swarms interactively
+- [Observability](https://swarms.ai/observability): Live dashboards for request volume, success rate, rate limits
+- [Execution History](https://swarms.ai/history): Searchable logs with token usage and per-run cost
+- [Model Catalog](https://swarms.ai/models): Browse and configure models across providers
+- [Prompt Generator](https://swarms.ai/prompts): Auto-generate production-grade system prompts
+
+## Optional
+
+- [GitHub Repository](https://github.com/kyegomez/swarms): Star the open-source Swarms package
+- [Swarms Framework Docs](https://docs.swarms.world): Documentation for the open-source swarms Python package
+- [Status Page](https://status.swarms.ai): Real-time API uptime and incident reports
+- [@swarms_corp](https://twitter.com/swarms_corp): Follow for product updates
